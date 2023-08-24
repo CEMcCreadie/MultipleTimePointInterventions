@@ -6,6 +6,7 @@ source("tstmle.R")
 ATE_SPEC <- tmle_ATE(treatment_level = 1, control_level=0)
 TREATMENT_THRESHOLD <- 150
 
+# Only relevant to my case study of PM2.5 exposure
 preprocess_data <- function(data){
     data$pm2_5 <- ifelse(data$pm2_5 >= TREATMENT_THRESHOLD, 1, 0)
     max_y <- max(data$breathing_rate)
@@ -15,6 +16,7 @@ preprocess_data <- function(data){
     return (data)
 }
 
+# Integral from page 27 of paper
 int_out_ak <- function(data, node_list, targeted_likelihood, g, k) {
     counterfactual_data <- copy(data)
     treatment <- node_list$"A"
@@ -29,7 +31,6 @@ int_out_ak <- function(data, node_list, targeted_likelihood, g, k) {
     counterfactual_task <- make_tmle_task(ATE_SPEC, counterfactual_data, node_list, folds, lag=k)
     counterfactual_vector_2 <- matrix((targeted_likelihood$factor_list[["Y"]]$get_likelihood(counterfactual_task)))
 
-    #weights <- counterfactual_vector 
     weights <- (counterfactual_vector *  matrix(g)) + (counterfactual_vector_2 * (1-matrix(g)))
     return (weights)
 }
@@ -42,7 +43,6 @@ run_multi_interventions_tmle <- function(data, node_list, K){
 
     for (k in K:0){
         folds <- origami::make_folds(fold_fun = folds_rolling_window, n=N, window_size = N/5, validation_size=20, gap=10, batch=N/25)
-        #folds <- folds_vfold(N, V=20)
 
         if (k == 0){
             tmle_task <- ATE_SPEC$make_tmle_task(data, node_list, folds)
@@ -75,4 +75,3 @@ run_multi_interventions_tmle <- function(data, node_list, K){
 
     return(c(tmle_fit$summary$tmle_est, se))
 }
-
