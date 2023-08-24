@@ -2,7 +2,7 @@ The implementation of <a href="https://arxiv.org/pdf/1809.00734.pdf">Robust Esti
 
 Performs TMLE estimate through sequential regression (5.3) of ATE over multiple interventions in a time series.
 
-Implementation of Single Time Point inspired from <a href="https://github.com/imalenica/tstmle3">tstmle3</a>, Multiple Time Point implementation orginal.
+Implementation of Single Time Point inspired from <a href="https://github.com/imalenica/tstmle3">tstmle3</a>, Multiple Time Point implementation original.
 
 <em>Deprecated</em> notebooks included for exposition of code. 
 
