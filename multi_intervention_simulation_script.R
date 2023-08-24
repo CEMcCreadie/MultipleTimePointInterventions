@@ -1,3 +1,4 @@
+# Multiple Time Point Intervention Simulation 1c test as proposed in Thesis.
 library(glue)
 library(rje)
 library(data.table)
@@ -6,7 +7,7 @@ source("multi_interventions.R")
 
 N <- 500
 
-simulation_1a <- function(){
+simulation_1c <- function(){
     # Using rbinom(_, 1, _) seems easiest way to get the behaviour of a bernoulli trial 
     W <- data.frame(
         "W1" = rbinom(N, 1, 0.5),
@@ -41,11 +42,11 @@ node_list <- list(
     Y = "Y"
 )
 
-monte_carlo_draws <- 50
+monte_carlo_draws <- 500
 
 tmle_fits <- matrix(nrow=0, ncol = 2)
 for (i in 1:monte_carlo_draws){
-    sim <- simulation_1a()
+    sim <- simulation_1c()
     result <- run_multi_interventions_tmle(sim, node_list, 3)
     tmle_fits <- rbind(tmle_fits, result)
 }
