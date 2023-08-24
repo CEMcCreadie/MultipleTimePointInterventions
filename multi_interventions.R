@@ -35,6 +35,7 @@ int_out_ak <- function(data, node_list, targeted_likelihood, g, k) {
     return (weights)
 }
 
+# Implements Sequential Regression (Paper Section 5.3)
 run_multi_interventions_tmle <- function(data, node_list, K){
 
     N <- nrow(data)
@@ -42,12 +43,13 @@ run_multi_interventions_tmle <- function(data, node_list, K){
     se <- 0
 
     for (k in K:0){
-        folds <- origami::make_folds(fold_fun = folds_rolling_window, n=N, window_size = N/5, validation_size=20, gap=10, batch=N/25)
+        # 20 Folds, see paper: Practical considerations for specifying a super-learner
+        folds <- origami::make_folds(fold_fun = folds_rolling_window, n=N, window_size = N/5, validation_size=20, gap=10, batch=N/25)  
 
         if (k == 0){
             tmle_task <- ATE_SPEC$make_tmle_task(data, node_list, folds)
         } else {
-            tmle_task <- make_tmle_task(ATE_SPEC, data, node_list, folds, k)    
+            tmle_task <- make_tmle_task(ATE_SPEC, data, node_list, folds, k) # This is calling fn tstmle.R.make_tmle_task     
         }
 
         initial_likelihood <- ATE_SPEC$make_initial_likelihood(
@@ -63,7 +65,7 @@ run_multi_interventions_tmle <- function(data, node_list, K){
         tmle_params <- ATE_SPEC$make_params(tmle_task, targeted_likelihood)
         updater$tmle_params <- tmle_params
         tmle_fit <- fit_tmle3(tmle_task, targeted_likelihood, tmle_params, updater)
-        se <- se + tmle_fit$summary$se
+        se <- se + tmle_fit$summary$se # Standard Error of Estimate is total sum of sequential regressions
 
         if (k != 0){
             q_nAk <- int_out_ak(data, node_list, targeted_likelihood, g, k) # $\bar Q_{A(t,K)}$

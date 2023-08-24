@@ -2,7 +2,6 @@ library(tmle3)
 library(sl3)
 library(origami)
 
-
 lag_column = function(column, lag){
     lag_col <- lapply(seq_len(lag), function(x) {
         Hmisc::Lag(column[, 1], x)
@@ -11,7 +10,6 @@ lag_column = function(column, lag){
         stringsAsFactors = FALSE)
     return(lag_cols)
 }
-
 
 generate_lag_table = function(W, A, Y, lag){
 
@@ -36,6 +34,7 @@ generate_lag_table = function(W, A, Y, lag){
 }
 
 
+# Creates TMLE task with lagged data in each row so records can be treated i.i.d (SEE NOTEBOOK)
 make_tmle_task = function(tmle_spec, data, node_list, folds, lag){
 
     data_lag <- generate_lag_table(data.frame(W=data[, node_list$W]),
@@ -58,7 +57,6 @@ make_tmle_task = function(tmle_spec, data, node_list, folds, lag){
         define_node("Y", node_list_lag$Y, c("A","W"))
     )
 
-    #return(tmle_spec$make_tmle_task(data_lag, node_list_lag, folds=folds))
     return(tmle3_Task$new(data_lag, npsem=npsem, folds=folds))
 }
 
